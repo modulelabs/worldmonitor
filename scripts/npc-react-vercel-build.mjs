@@ -8,18 +8,36 @@
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { delimiter, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const reactDir = join(root, 'react');
 const requireFromReact = createRequire(join(reactDir, 'package.json'));
 
+function pathWithoutRootBins(envPath = process.env.PATH || '') {
+  const rootBin = join(root, 'node_modules', '.bin').toLowerCase();
+  return envPath
+    .split(delimiter)
+    .filter((entry) => entry && entry.toLowerCase() !== rootBin)
+    .join(delimiter);
+}
+
+function reactEnv(base = process.env) {
+  const reactBin = join(reactDir, 'node_modules', '.bin');
+  return {
+    ...base,
+    NODE_ENV: 'development',
+    NPM_CONFIG_PRODUCTION: 'false',
+    npm_config_production: 'false',
+    // Root WM ships a newer esbuild; its .bin must not win during react postinstall/build.
+    PATH: `${reactBin}${delimiter}${pathWithoutRootBins(base.PATH)}`,
+  };
+}
+
 function run(cmd, args, cwd, env = process.env) {
   console.log(`[npc-react-build] ${cmd} ${args.join(' ')} (cwd=${cwd})`);
-  // Only shell npm on Windows. Never shell node paths — spaces in
-  // `C:\Program Files\nodejs\node.exe` break cmd.exe tokenization.
   const useShell = process.platform === 'win32' && cmd === 'npm';
   const r = spawnSync(cmd, args, {
     cwd,
@@ -40,21 +58,16 @@ if (!existsSync(join(root, 'node_modules', 'maplibre-gl'))) {
   run('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], root);
 }
 
-// Vercel sets production npm config; force a full React install and pin local vite.
-const reactInstallEnv = {
-  ...process.env,
-  NODE_ENV: 'development',
-  NPM_CONFIG_PRODUCTION: 'false',
-  npm_config_production: 'false',
-};
+const env = reactEnv();
+
+// Ignore scripts first so esbuild's installer does not see root's binary via PATH.
 run(
   'npm',
-  ['install', '--include=dev', '--no-audit', '--no-fund', '--omit=optional'],
+  ['install', '--ignore-scripts', '--include=dev', '--no-audit', '--no-fund'],
   reactDir,
-  reactInstallEnv,
+  env,
 );
 
-// Ensure build tooling is resolvable from react/ even if omit/production wins.
 try {
   requireFromReact.resolve('vite/package.json');
   requireFromReact.resolve('@vitejs/plugin-react/package.json');
@@ -62,10 +75,22 @@ try {
   console.log('[npc-react-build] installing vite + @vitejs/plugin-react explicitly');
   run(
     'npm',
-    ['install', 'vite@^6.3.5', '@vitejs/plugin-react@^4.7.0', '--no-audit', '--no-fund'],
+    [
+      'install',
+      'vite@^6.3.5',
+      '@vitejs/plugin-react@^4.7.0',
+      '--ignore-scripts',
+      '--no-audit',
+      '--no-fund',
+    ],
     reactDir,
-    reactInstallEnv,
+    env,
   );
+}
+
+const esbuildInstall = join(reactDir, 'node_modules', 'esbuild', 'install.js');
+if (existsSync(esbuildInstall)) {
+  run(process.execPath, [esbuildInstall], join(reactDir, 'node_modules', 'esbuild'), env);
 }
 
 const viteJs = join(reactDir, 'node_modules', 'vite', 'bin', 'vite.js');
@@ -76,7 +101,7 @@ if (!existsSync(viteJs)) {
 
 // Use the React package's vite binary — root also has vite, and `npx vite`
 // can resolve the parent copy, then fail to load @vitejs/plugin-react.
-run(process.execPath, [viteJs, 'build'], reactDir, reactInstallEnv);
+run(process.execPath, [viteJs, 'build'], reactDir, env);
 
 if (!existsSync(join(reactDir, 'dist', 'index.html'))) {
   console.error('[npc-react-build] react/dist/index.html missing after build');
