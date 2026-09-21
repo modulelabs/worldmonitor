@@ -20,10 +20,9 @@ target/
 .DS_Store
 
 # NPC React preview (:3020) is a static SPA. /api is edge-rewritten to
-# api.worldmonitor.app — do not upload serverless handlers (Hobby limit +
-# empty output when VC tries to package the full WM api/ tree).
+# api.worldmonitor.app — omit serverless handlers (Hobby limit). Keep
+# server/_shared uploaded; browser code imports it at build time.
 api/
-server/
 
 # Never deploy api test files if api/ is re-enabled later.
 api/**/*.test.mjs
