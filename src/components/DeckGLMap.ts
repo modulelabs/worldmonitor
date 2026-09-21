@@ -854,9 +854,6 @@ export class DeckGLMap {
   private datacenterSC: Supercluster | null = null;
   private datacenterSCSource: AIDataCenter[] = [];
   private protestClusters: MapProtestCluster[] = [];
-  private techHQClusters: MapTechHQCluster[] = [];
-  private techEventClusters: MapTechEventCluster[] = [];
-  private datacenterClusters: MapDatacenterCluster[] = [];
   private lastSCZoom = -1;
   private lastSCBoundsKey = '';
   private lastSCMask = '';
@@ -1830,128 +1827,9 @@ export class DeckGLMap {
       this.protestClusters = [];
     }
 
-    if (useTechHQ && this.techHQSC) {
-      this.techHQClusters = this.techHQSC.getClusters(bbox, zoom).map(f => {
-        const coords = f.geometry.coordinates as [number, number];
-        if (f.properties.cluster) {
-          const props = f.properties as Record<string, unknown>;
-          const faangCount = Number(props.faangCount ?? 0);
-          const unicornCount = Number(props.unicornCount ?? 0);
-          const publicCount = Number(props.publicCount ?? 0);
-          const clusterCount = Number(f.properties.point_count ?? 0);
-          const primaryType = faangCount >= unicornCount && faangCount >= publicCount
-            ? 'faang'
-            : unicornCount >= publicCount
-              ? 'unicorn'
-              : 'public';
-          return {
-            id: `hc-${f.properties.cluster_id}`,
-            _kind: 'group' as const,
-            _clusterId: f.properties.cluster_id!,
-            lat: coords[1], lon: coords[0],
-            count: clusterCount,
-            items: [] as import('@/config/tech-geo').TechHQ[],
-            city: String(props.city ?? ''),
-            country: String(props.country ?? ''),
-            primaryType,
-            faangCount,
-            unicornCount,
-            publicCount,
-            sampled: clusterCount > DeckGLMap.MAX_CLUSTER_LEAVES,
-          };
-        }
-        const item = TECH_HQS[f.properties.index]!;
-        return {
-          id: `hp-${f.properties.index}`, _kind: 'leaf' as const, lat: item.lat, lon: item.lon,
-          count: 1, items: [item], city: item.city, country: item.country,
-          primaryType: item.type,
-          faangCount: item.type === 'faang' ? 1 : 0,
-          unicornCount: item.type === 'unicorn' ? 1 : 0,
-          publicCount: item.type === 'public' ? 1 : 0,
-          sampled: false,
-        };
-      });
-    } else {
-      this.techHQClusters = [];
-    }
-
-    if (useTechEvents && this.techEventSC) {
-      this.techEventClusters = this.techEventSC.getClusters(bbox, zoom).map(f => {
-        const coords = f.geometry.coordinates as [number, number];
-        if (f.properties.cluster) {
-          const props = f.properties as Record<string, unknown>;
-          const clusterCount = Number(f.properties.point_count ?? 0);
-          const soonestDaysUntil = Number(props.soonestDaysUntil ?? Number.MAX_SAFE_INTEGER);
-          const soonCount = Number(props.soonCount ?? 0);
-          return {
-            id: `ec-${f.properties.cluster_id}`,
-            _kind: 'group' as const,
-            _clusterId: f.properties.cluster_id!,
-            lat: coords[1], lon: coords[0],
-            count: clusterCount,
-            items: [] as TechEventMarker[],
-            location: String(props.location ?? ''),
-            country: String(props.country ?? ''),
-            soonestDaysUntil: Number.isFinite(soonestDaysUntil) ? soonestDaysUntil : Number.MAX_SAFE_INTEGER,
-            soonCount,
-            sampled: clusterCount > DeckGLMap.MAX_CLUSTER_LEAVES,
-          };
-        }
-        const item = this.techEvents[f.properties.index]!;
-        return {
-          id: `ep-${f.properties.index}`, _kind: 'leaf' as const, lat: item.lat, lon: item.lng,
-          count: 1, items: [item], location: item.location, country: item.country,
-          soonestDaysUntil: item.daysUntil,
-          soonCount: item.daysUntil <= 14 ? 1 : 0,
-          sampled: false,
-        };
-      });
-    } else {
-      this.techEventClusters = [];
-    }
-
-    if (useDatacenterClusters && this.datacenterSC) {
-      const activeDCs = this.datacenterSCSource;
-      this.datacenterClusters = this.datacenterSC.getClusters(bbox, zoom).map(f => {
-        const coords = f.geometry.coordinates as [number, number];
-        if (f.properties.cluster) {
-          const props = f.properties as Record<string, unknown>;
-          const clusterCount = Number(f.properties.point_count ?? 0);
-          const existingCount = Number(props.existingCount ?? 0);
-          const plannedCount = Number(props.plannedCount ?? 0);
-          const totalChips = Number(props.totalChips ?? 0);
-          const totalPowerMW = Number(props.totalPowerMW ?? 0);
-          return {
-            id: `dc-${f.properties.cluster_id}`,
-            _kind: 'group' as const,
-            _clusterId: f.properties.cluster_id!,
-            lat: coords[1], lon: coords[0],
-            count: clusterCount,
-            items: [] as AIDataCenter[],
-            region: String(props.country ?? ''),
-            country: String(props.country ?? ''),
-            totalChips,
-            totalPowerMW,
-            majorityExisting: existingCount >= Math.max(1, clusterCount / 2),
-            existingCount,
-            plannedCount,
-            sampled: clusterCount > DeckGLMap.MAX_CLUSTER_LEAVES,
-          };
-        }
-        const item = activeDCs[f.properties.index]!;
-        return {
-          id: `dp-${f.properties.index}`, _kind: 'leaf' as const, lat: item.lat, lon: item.lon,
-          count: 1, items: [item], region: item.country, country: item.country,
-          totalChips: item.chipCount, totalPowerMW: item.powerMW ?? 0,
-          majorityExisting: item.status === 'existing',
-          existingCount: item.status === 'existing' ? 1 : 0,
-          plannedCount: item.status === 'planned' ? 1 : 0,
-          sampled: false,
-        };
-      });
-    } else {
-      this.datacenterClusters = [];
-    }
+    // Tech HQ / event / datacenter layers paint raw points (density), not
+    // cluster arrays. Supercluster instances stay for pick-handler leaf
+    // expansion; layerMask above still rebuilds them when those layers toggle.
   }
 
 
@@ -4589,7 +4467,8 @@ export class DeckGLMap {
       stroked: true,
       pickable: true,
       material: false,
-      parameters: { depthMask: true },
+      // deck.gl Parameters typing omits WebGL depth flags used at runtime.
+      parameters: { depthMask: true } as object,
       updateTriggers: {
         getFillColor: [focusKey, points.length, maxShare, getCurrentTheme()],
         getElevation: [focusKey, points.length],
@@ -4716,7 +4595,7 @@ export class DeckGLMap {
       getLineWidth: 1.25,
       lineWidthMinPixels: 0.75,
       pickable: true,
-      parameters: { depthMask: false },
+      parameters: { depthMask: false } as object,
       getPolygonOffset: () => [0, 100],
       updateTriggers: {
         getFillColor: [features.length],
@@ -4789,7 +4668,8 @@ export class DeckGLMap {
       radiusMaxPixels: 28,
       pickable: true,
       // Draw above AI Usage / Policy country fills (interleaved depth).
-      parameters: { depthTest: false },
+      // deck.gl Parameters typing omits WebGL depth flags used at runtime.
+      parameters: { depthTest: false } as object,
       updateTriggers: {
         getRadius: [focusKey, data.length, maxW, this.newsLocations.length],
         getFillColor: [focusKey, data.length, maxW, this.newsLocations.length],
