@@ -807,6 +807,9 @@
       "status": "terms-review",
       "references": [
         {
+          "path": "scripts/join-gdelt-ai-convo-hotspots.mjs"
+        },
+        {
           "path": "scripts/seed-gdelt-intel.mjs"
         },
         {
@@ -3690,6 +3693,20 @@
       ]
     },
     {
+      "host": "epoch.ai",
+      "provider": "epoch.ai",
+      "kind": "structured",
+      "observed": true,
+      "license": "Provider terms for this upstream API/dataset; verify before redistribution",
+      "attribution": "Credit epoch.ai and link to the original upstream API/dataset.",
+      "status": "terms-review",
+      "references": [
+        {
+          "path": "src/config/ai-dc-growth-landmarks.ts"
+        }
+      ]
+    },
+    {
       "host": "ert.gr",
       "provider": "ert.gr",
       "kind": "feed",
@@ -4936,6 +4953,20 @@
         },
         {
           "path": "src/config/feeds.ts"
+        }
+      ]
+    },
+    {
+      "host": "huggingface.co",
+      "provider": "huggingface.co",
+      "kind": "structured",
+      "observed": true,
+      "license": "Provider terms for this upstream API/dataset; verify before redistribution",
+      "attribution": "Credit huggingface.co and link to the original upstream API/dataset.",
+      "status": "terms-review",
+      "references": [
+        {
+          "path": "src/config/ai-conversation-growth-landmarks.ts"
         }
       ]
     },
@@ -6943,6 +6974,9 @@
       "status": "reviewed",
       "references": [
         {
+          "path": "scripts/join-owid-ai-conversation-growth.mjs"
+        },
+        {
           "path": "scripts/seed-low-carbon-generation.mjs"
         },
         {
@@ -6950,6 +6984,9 @@
         },
         {
           "path": "server/worldmonitor/resilience/v1/_indicator-source-policy.ts"
+        },
+        {
+          "path": "src/config/ai-conversation-growth-landmarks.ts"
         }
       ]
     },
@@ -10077,6 +10114,23 @@
       ]
     },
     {
+      "host": "wikimedia.org",
+      "provider": "wikimedia.org",
+      "kind": "structured",
+      "observed": true,
+      "license": "Provider terms for this upstream API/dataset; verify before redistribution",
+      "attribution": "Credit wikimedia.org and link to the original upstream API/dataset.",
+      "status": "terms-review",
+      "references": [
+        {
+          "path": "scripts/join-wiki-ai-convo-hotspots.mjs"
+        },
+        {
+          "path": "scripts/join-wiki-country-ai-convo-hotspots.mjs"
+        }
+      ]
+    },
+    {
       "host": "wilsoncenter.org",
       "provider": "wilsoncenter.org",
       "kind": "feed",
@@ -11915,6 +11969,20 @@
         },
         {
           "path": "src/components/MapPopup.ts"
+        }
+      ]
+    },
+    {
+      "host": "www.googleapis.com",
+      "provider": "www.googleapis.com",
+      "kind": "structured",
+      "observed": true,
+      "license": "Provider terms for this upstream API/dataset; verify before redistribution",
+      "attribution": "Credit www.googleapis.com and link to the original upstream API/dataset.",
+      "status": "terms-review",
+      "references": [
+        {
+          "path": "scripts/join-google-cse-ai-convo-hotspots.mjs"
         }
       ]
     },
