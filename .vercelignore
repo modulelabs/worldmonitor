@@ -24,3 +24,81 @@ target/
 # node:test suite (production env + Sentry) on every request (WORLDMONITOR-VD).
 # Guarded by tests/deploy-config.test.mjs.
 api/**/*.test.mjs
+
+# ---------------------------------------------------------------------------
+# Hobby plan (module1 / worldmonitor-npc-preview): max 12 Serverless Functions
+# per deployment. Upstream WorldMonitor ships 100+ api/ entries; the full
+# surface only deploys on Pro. This preview keeps a tiny allowlist so the
+# static Vite app + bootstrap can go Ready for production UI testing.
+# Underscore-prefixed helpers stay uploaded (not counted as functions).
+# ---------------------------------------------------------------------------
+
+# Nested RPC / product route trees (each file would be a function).
+api/aviation/
+api/batch/
+api/brief/
+api/climate/
+api/conflict/
+api/consumer-prices/
+api/cyber/
+api/discord/
+api/displacement/
+api/economic/
+api/embed/
+api/forecast/
+api/giving/
+api/health/
+api/imagery/
+api/infrastructure/
+api/intelligence/
+api/internal/
+api/leads/
+api/maritime/
+api/market/
+api/mcp/
+api/me/
+api/military/
+api/natural/
+api/news/
+api/oauth/
+api/positive-events/
+api/prediction/
+api/radiation/
+api/referral/
+api/research/
+api/resilience/
+api/safety/
+api/sanctions/
+api/scenario/
+api/scorecard/
+api/security/
+api/seismology/
+api/skills/
+api/slack/
+api/supply-chain/
+api/thermal/
+api/trade/
+api/unrest/
+api/user/
+api/v2/
+api/webcam/
+api/wildfire/
+api/youtube/
+
+# Top-level api entries: ignore all, then re-include the Hobby allowlist + helpers.
+api/*.js
+api/*.ts
+api/*.mjs
+!api/_*.js
+!api/_*.ts
+!api/_*.mjs
+!api/bootstrap.js
+!api/health.js
+!api/version.js
+!api/geo.js
+!api/product-catalog.js
+!api/seed-health.js
+!api/wm-session.js
+!api/rss-proxy.js
+!api/not-found.ts
+!api/[[]...notfound].ts
