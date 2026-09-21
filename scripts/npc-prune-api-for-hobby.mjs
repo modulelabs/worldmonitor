@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * Hobby plan (module1) allows ≤12 Serverless Functions per deployment.
- * Upstream WorldMonitor ships 100+ api/ entries — build succeeds, then
- * "Deploying outputs" fails. After the full build finishes, prune every
- * non-allowlisted serverless entry so the deploy step stays within Hobby.
+ * Hobby plan (module1) allows ≤12 **Serverless** Functions per deployment.
+ * Edge Functions do not count against that limit. After the full build, rewrite
+ * every non-allowlisted api/ entry as a tiny Edge 501 stub so:
+ *   1) Vercel's post-build path open() still finds the files it enumerated
+ *   2) only the allowlist remains Node serverless (≤12)
  *
- * Underscore-prefixed helpers are kept (not counted as functions).
- * Do not run this before inventory:facts / tsc / vite — those need the tree.
+ * Underscore-prefixed helpers are left untouched.
  */
-import { existsSync, readdirSync, rmSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const API_ROOT = fileURLToPath(new URL('../api/', import.meta.url));
@@ -27,53 +27,71 @@ const ALLOWLIST = new Set([
   '[...notfound].ts',
 ]);
 
-const NESTED_ROUTE_DIRS = [
-  'aviation', 'batch', 'brief', 'climate', 'conflict', 'consumer-prices', 'cyber',
-  'discord', 'displacement', 'economic', 'embed', 'forecast', 'giving', 'health',
-  'imagery', 'infrastructure', 'intelligence', 'internal', 'leads', 'maritime',
-  'market', 'mcp', 'me', 'military', 'natural', 'news', 'oauth', 'positive-events',
-  'prediction', 'radiation', 'referral', 'research', 'resilience', 'safety',
-  'sanctions', 'scenario', 'scorecard', 'security', 'seismology', 'skills', 'slack',
-  'supply-chain', 'thermal', 'trade', 'unrest', 'user', 'v2', 'webcam', 'wildfire',
-  'youtube',
-];
+const EDGE_STUB_TS = `export const config = { runtime: 'edge' as const };
 
-function isHelperName(name) {
-  return name.startsWith('_');
+export default function handler(): Response {
+  return new Response(JSON.stringify({ error: 'not_available_on_npc_preview' }), {
+    status: 501,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+`;
+
+const EDGE_STUB_JS = `export const config = { runtime: 'edge' };
+
+export default function handler() {
+  return new Response(JSON.stringify({ error: 'not_available_on_npc_preview' }), {
+    status: 501,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+`;
+
+function isHelperPath(relPosix) {
+  return relPosix.split('/').some((part) => part.startsWith('_'));
 }
 
-let removed = 0;
-
-for (const dir of NESTED_ROUTE_DIRS) {
-  const path = join(API_ROOT, dir);
-  if (!existsSync(path)) continue;
-  rmSync(path, { recursive: true, force: true });
-  removed += 1;
-  console.log(`[hobby-prune] removed api/${dir}/`);
+function walk(dir, out = []) {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    const st = statSync(full);
+    if (st.isDirectory()) {
+      walk(full, out);
+      continue;
+    }
+    if (!/\.(js|ts|mjs)$/.test(entry)) continue;
+    if (entry.includes('.test.')) continue;
+    out.push(full);
+  }
+  return out;
 }
 
-for (const entry of readdirSync(API_ROOT)) {
-  if (isHelperName(entry) || ALLOWLIST.has(entry)) continue;
-  const path = join(API_ROOT, entry);
-  const st = statSync(path);
-  if (st.isDirectory()) continue;
-  if (!/\.(js|ts|mjs)$/.test(entry)) continue;
-  if (entry.includes('.test.')) continue;
-  rmSync(path, { force: true });
-  removed += 1;
-  console.log(`[hobby-prune] removed api/${entry}`);
-}
-
-const kept = readdirSync(API_ROOT).filter((name) => {
-  if (isHelperName(name)) return false;
-  const path = join(API_ROOT, name);
-  if (statSync(path).isDirectory()) return false;
-  return /\.(js|ts|mjs)$/.test(name) && !name.includes('.test.');
-});
-
-console.log(`[hobby-prune] kept ${kept.length} serverless entries: ${kept.sort().join(', ')}`);
-if (kept.length > 12) {
-  console.error(`[hobby-prune] FATAL: ${kept.length} > 12 Hobby Serverless Function limit`);
+if (!existsSync(API_ROOT)) {
+  console.error('[hobby-prune] api/ missing');
   process.exit(1);
 }
-console.log(`[hobby-prune] done (removed ${removed} paths)`);
+
+const files = walk(API_ROOT);
+let stubbed = 0;
+let kept = 0;
+
+for (const full of files) {
+  const rel = relative(API_ROOT, full).replace(/\\/g, '/');
+  if (isHelperPath(rel)) continue;
+  // Top-level allowlist only (bootstrap.js etc.)
+  if (!rel.includes('/') && ALLOWLIST.has(rel)) {
+    kept += 1;
+    continue;
+  }
+  const stub = rel.endsWith('.ts') ? EDGE_STUB_TS : EDGE_STUB_JS;
+  writeFileSync(full, stub);
+  stubbed += 1;
+}
+
+console.log(`[hobby-prune] kept ${kept} serverless allowlist entries`);
+console.log(`[hobby-prune] stubbed ${stubbed} routes as edge 501`);
+if (kept > 12) {
+  console.error(`[hobby-prune] FATAL: ${kept} > 12 Hobby Serverless Function limit`);
+  process.exit(1);
+}
+console.log('[hobby-prune] done');

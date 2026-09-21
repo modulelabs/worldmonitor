@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build:full && node scripts/npc-prune-api-for-hobby.mjs",
+  "buildCommand": "npm run build:full",
   "ignoreCommand": "bash scripts/vercel-ignore.sh",
   "crons": [],
   "redirects": [
