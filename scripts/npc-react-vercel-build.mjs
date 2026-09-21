@@ -14,13 +14,13 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const reactDir = join(root, 'react');
 
-function run(cmd, args, cwd) {
+function run(cmd, args, cwd, env = process.env) {
   console.log(`[npc-react-build] ${cmd} ${args.join(' ')} (cwd=${cwd})`);
   const r = spawnSync(cmd, args, {
     cwd,
     stdio: 'inherit',
     shell: process.platform === 'win32',
-    env: process.env,
+    env,
   });
   if (r.status !== 0) process.exit(r.status ?? 1);
 }
@@ -35,7 +35,14 @@ if (!existsSync(join(root, 'node_modules', 'vite'))) {
   run('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], root);
 }
 
-run('npm', ['install', '--no-audit', '--no-fund'], reactDir);
+// Vercel sets NODE_ENV=production, which skips vite/@vitejs/plugin-react in
+// react/devDependencies. Force a full install so `vite build` can load config.
+const reactInstallEnv = {
+  ...process.env,
+  NODE_ENV: 'development',
+  NPM_CONFIG_PRODUCTION: 'false',
+};
+run('npm', ['install', '--include=dev', '--no-audit', '--no-fund'], reactDir, reactInstallEnv);
 run('npx', ['vite', 'build'], reactDir);
 
 if (!existsSync(join(reactDir, 'dist', 'index.html'))) {
