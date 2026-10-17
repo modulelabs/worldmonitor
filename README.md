@@ -1,3 +1,13 @@
+# The Next Production Cycle
+
+The Next Production Cycle is a decision platform for the shift from labour-and-capital production to capability that stays inside a biophysical floor. Forecast explores scenario relationships among ownership, capital-to-capability, Develop / Optimise / Preserve, and the biophysical floor. Live is the geographic monitor: signals become density and map overlays, and missing series stay blank rather than zero.
+
+Public app: https://thenextproductioncycle.vercel.app
+
+This repository is a fork of [koala73/worldmonitor](https://github.com/koala73/worldmonitor), used as the live map and intelligence substrate. Upstream documentation follows.
+
+---
+
 # World Monitor
 
 [简体中文](README.zh-CN.md) | [日本語](README.ja-JP.md) | [Русский](README.ru.md)
