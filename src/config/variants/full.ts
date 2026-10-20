@@ -54,133 +54,126 @@ export const DEFAULT_PANELS: Record<string, PanelConfig> = {
   monitors: { name: 'My Monitors', enabled: true, priority: 2 },
 };
 
-// Map layers for geopolitical view
+// Map layers for Spatial Cycle city view (Develop / Optimise / Preserve / Horizon)
 export const DEFAULT_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
 
-
-  conflicts: true,
-  bases: true,
+  // Conflict / kinetic — off by default for city spatial monitor
+  conflicts: false,
+  bases: false,
   cables: false,
-  pipelines: false,
-  hotspots: true,
+  pipelines: true,
+  hotspots: false,
   ais: false,
-  nuclear: true,
+  nuclear: false,
   irradiators: false,
-  sanctions: true,
-  weather: true,
-  // Opt-in: all five road feeds are on-demand bootstrap keys. Default-on made
-  // every visitor fetch them, which is exactly what the on-demand tier is meant
-  // to prevent. Narrowest surface on the map, so it follows military/flights/fires
-  // rather than the global layers above it (#6763).
+  sanctions: false,
+  weather: false,
+  // Opt-in: all five road feeds are on-demand bootstrap keys (#6763).
   canadaRoads: false,
-  // Stays on: it rides the fast tier already hydrated, so enabling it costs no
-  // extra request, and it carries provincial emergency alerts.
-  canadaAlerts: true,
-  economic: false,
+  canadaAlerts: false,
+  // B Optimise
+  economic: true,
   waterways: true,
   outages: true,
   cyberThreats: false,
-  datacenters: false,
+  // A Develop
+  datacenters: true,
   protests: false,
   flights: false,
   military: false,
-  natural: false,
+  // C Preserve
+  natural: true,
   spaceports: false,
-  minerals: false,
-  fires: false,
+  minerals: true,
+  fires: true,
   ucdpEvents: false,
   displacement: false,
   climate: false,
-  // Tech layers (disabled in full variant)
-  startupHubs: false,
-  cloudRegions: false,
-  accelerators: false,
-  techHQs: false,
+  // B Optimise capability nodes
+  startupHubs: true,
+  cloudRegions: true,
+  accelerators: true,
+  techHQs: true,
   techEvents: false,
-  // Finance layers (disabled in full variant)
+  // Finance layers (disabled)
   stockExchanges: false,
   financialCenters: false,
   centralBanks: false,
   commodityHubs: false,
   gulfInvestments: false,
-  // Happy variant layers
-  positiveEvents: false,
+  // D Human Horizon + A Develop renewables / C rewilding
+  positiveEvents: true,
   kindness: false,
-  happiness: false,
-  speciesRecovery: false,
-  renewableInstallations: false,
-  tradeRoutes: false,
-  iranAttacks: true,
+  happiness: true,
+  speciesRecovery: true,
+  renewableInstallations: true,
+  tradeRoutes: true,
+  iranAttacks: false,
   ciiChoropleth: false,
-  resilienceScore: false,
+  resilienceScore: true,
   dayNight: false,
-  // Commodity variant layers (disabled in full variant)
+  // A Develop logistics / materials
   miningSites: false,
   processingPlants: false,
-  commodityPorts: false,
+  commodityPorts: true,
   webcams: false,
   diseaseOutbreaks: false,
 };
 
-// Mobile-specific defaults for geopolitical
+// Mobile — lean city sustainability defaults
 export const MOBILE_DEFAULT_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
 
-
-  conflicts: true,
+  conflicts: false,
   bases: false,
   cables: false,
-  pipelines: false,
-  hotspots: true,
+  pipelines: true,
+  hotspots: false,
   ais: false,
   nuclear: false,
   irradiators: false,
-  sanctions: true,
-  weather: true,
+  sanctions: false,
+  weather: false,
   canadaRoads: false,
   canadaAlerts: false,
-  economic: false,
+  economic: true,
   waterways: false,
   outages: true,
   cyberThreats: false,
-  datacenters: false,
+  datacenters: true,
   protests: false,
   flights: false,
   military: false,
   natural: true,
   spaceports: false,
   minerals: false,
-  fires: false,
+  fires: true,
   ucdpEvents: false,
   displacement: false,
   climate: false,
-  // Tech layers (disabled in full variant)
   startupHubs: false,
   cloudRegions: false,
   accelerators: false,
   techHQs: false,
   techEvents: false,
-  // Finance layers (disabled in full variant)
   stockExchanges: false,
   financialCenters: false,
   centralBanks: false,
   commodityHubs: false,
   gulfInvestments: false,
-  // Happy variant layers
-  positiveEvents: false,
+  positiveEvents: true,
   kindness: false,
-  happiness: false,
-  speciesRecovery: false,
-  renewableInstallations: false,
+  happiness: true,
+  speciesRecovery: true,
+  renewableInstallations: true,
   tradeRoutes: false,
-  iranAttacks: true,
+  iranAttacks: false,
   ciiChoropleth: false,
-  resilienceScore: false,
+  resilienceScore: true,
   dayNight: false,
-  // Commodity variant layers (disabled in full variant)
   miningSites: false,
   processingPlants: false,
   commodityPorts: false,
@@ -190,7 +183,7 @@ export const MOBILE_DEFAULT_MAP_LAYERS: MapLayers = {
 
 export const VARIANT_CONFIG: VariantConfig = {
   name: 'full',
-  description: 'Full geopolitical intelligence dashboard',
+  description: 'City sustainability monitor — Product objects A–E',
   panels: DEFAULT_PANELS,
   mapLayers: DEFAULT_MAP_LAYERS,
   mobileMapLayers: MOBILE_DEFAULT_MAP_LAYERS,
