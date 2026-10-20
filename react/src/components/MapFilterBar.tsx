@@ -55,7 +55,7 @@ export function MapFilterBar({
   onTimeRange: (range: TimeRange) => void;
   layers: LayerMap;
   onToggleLayer: (key: LayerKey, on: boolean) => void;
-  /** Fired when any filter dropdown opens (e.g. close AI Footprint). */
+  /** Fired when any filter dropdown opens (e.g. close Spatial Cycle). */
   onMenuOpen?: () => void;
 }) {
   const activeMission = REACT_MISSIONS.find((m) => m.id === missionId) ?? null;

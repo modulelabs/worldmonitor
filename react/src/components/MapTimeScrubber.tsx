@@ -73,30 +73,41 @@ function stopIndex(
 
 /**
  * Chrome title = overlay section / layer name (not the scrub-dot headline).
- * Prefer active A–D pillar label; else the AI layer driving the timeline.
+ * Prefer active A–E Product-object label; else the spatial layer driving the timeline.
  */
 function scrubberOverlayTitle(layers: LayerMap): string | null {
   const activeAlias = AI_FOOTPRINT_ALIASES.find((a) => isAliasActive(a, layers));
   if (activeAlias) return activeAlias.label;
 
-  const driving: LayerKey[] = [];
-  if (layers.datacenters) driving.push('datacenters');
-  if (layers.techHQs || layers.convoHotspots || layers.aiUsage) {
-    if (layers.techHQs) driving.push('techHQs');
-    if (layers.convoHotspots) driving.push('convoHotspots');
-    if (layers.aiUsage) driving.push('aiUsage');
-  }
-  if (layers.startupHubs || layers.accelerators) {
-    if (layers.startupHubs) driving.push('startupHubs');
-    if (layers.accelerators) driving.push('accelerators');
-  }
-  if (layers.aiPolicy) driving.push('aiPolicy');
-  if (layers.techEvents) driving.push('techEvents');
-  if (layers.cloudRegions && driving.length === 0) driving.push('cloudRegions');
-
-  const unique = [...new Set(driving)];
-  if (unique.length === 0) return null;
-  return unique.map((k) => getOverlayDef(k).label).join(' · ');
+  // Same order as PRIMARY_OVERLAY_KEYS / city sustainability list
+  const candidates: LayerKey[] = [
+    'happiness',
+    'positiveEvents',
+    'kindness',
+    'economic',
+    'renewableInstallations',
+    'datacenters',
+    'cloudRegions',
+    'minerals',
+    'storageFacilities',
+    'pipelines',
+    'commodityPorts',
+    'startupHubs',
+    'accelerators',
+    'techHQs',
+    'tradeRoutes',
+    'ais',
+    'speciesRecovery',
+    'natural',
+    'fires',
+    'waterways',
+    'outages',
+    'techEvents',
+    'resilienceScore',
+  ];
+  const driving = candidates.filter((k) => layers[k]);
+  if (driving.length === 0) return null;
+  return driving.map((k) => getOverlayDef(k).label).join(' · ');
 }
 
 /**

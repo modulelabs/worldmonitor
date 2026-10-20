@@ -22,7 +22,7 @@ import type { LayerKey, LayerMap } from '../lib/url-state';
 const OFF = 'off';
 
 /**
- * AI Footprint body — A–D pillars + E map layers.
+ * Spatial Cycle body — A–E Product objects + city map layers.
  * Timeline scrub points live on TimeNav only (filtered by checked layers).
  */
 export function OverlayPanel({
@@ -101,7 +101,7 @@ export function OverlayPanel({
             <CheckboxList
               label="Pillars"
               isLabelHidden
-              description="A–D aliases onto existing geo layers"
+              description="A–E Product objects onto cited geo layers"
               density="compact"
               value={aliasValues}
               onChange={onAliasChecked}
@@ -122,14 +122,14 @@ export function OverlayPanel({
             value="layers"
             trigger={
               <Text type="label" color="secondary">
-                AI map layers
+                City map layers
               </Text>
             }
           >
             <CheckboxList
-              label="AI map layers"
+              label="City map layers"
               isLabelHidden
-              description="E — timeline scrub points follow checked layers"
+              description="Layers sorted for city sustainability — scrub points follow checks"
               density="compact"
               value={layerValues}
               onChange={onLayersChecked}

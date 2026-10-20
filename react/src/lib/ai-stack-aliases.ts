@@ -1,19 +1,16 @@
 /**
- * AI Footprint — plan sections A–E as map overlays (cited WM geo only).
+ * Spatial Cycle — city sustainability overlays ordered by Product objects
+ * (cited World Monitor geo only; missing series stay blank).
  *
- * Plan: AI Footprint growth on the timeline
- *   A Product / frontier → techHQs + convoHotspots + aiUsage
- *   B Open weights / diffusion → startupHubs + accelerators
- *   C Infrastructure / capital → datacenters + cloudRegions
- *   D Policy / geo friction → aiPolicy (implemented legislation + active discussion)
- *   E Density scatter → same keys + techEvents; growth filters in ai-era-visibility.ts
+ * From The Next Production Cycle Product page + spatial paper:
+ *   A Human Horizon              → ownership, reduced labour, agency
+ *   B Capital → Capability       → capital directed into capability
+ *   C Develop / Optimise / Preserve → the three vectors of the cycle
+ *   D Useful Societal Capability → the outcome
+ *   E Biophysical Floor          → the hard bound
  *
- * Era seek via TimeNav sets timeFocus only (overlay checkboxes drive which
- * landmarks appear). Historical paint: Epoch firstOperationalMs (DCs),
- * accelerator founded year, techEvent startDate. techHQs / startupHubs /
- * cloudRegions have no cited open dates — Live only (missing ≠ 0).
- *
- * https://www.aipotluck.org/map/dataset
+ * Era seek via TimeNav sets timeFocus only. Historical paint still uses cited
+ * open dates where they exist (datacenters / accelerators / techEvents).
  */
 
 import {
@@ -24,63 +21,112 @@ import {
 import type { LayerKey, LayerMap } from './url-state';
 import { emptyLayers } from './url-state';
 
-export type AiFootprintAliasId = 'product' | 'open' | 'infrastructure' | 'policy';
+export type AiFootprintAliasId =
+  | 'horizon'
+  | 'capital'
+  | 'vectors'
+  | 'capability'
+  | 'floor';
 
 export type AiFootprintAlias = {
   id: AiFootprintAliasId;
   /** Plan section letter for drawer copy */
-  section: 'A' | 'B' | 'C' | 'D';
+  section: 'A' | 'B' | 'C' | 'D' | 'E';
   label: string;
   description: string;
   layerKeys: readonly LayerKey[];
 };
 
-/** A–D pillar aliases onto existing DeckGL density layers. */
+/** A–E Product-object aliases onto existing DeckGL density layers. */
 export const AI_FOOTPRINT_ALIASES: readonly AiFootprintAlias[] = [
   {
-    id: 'product',
+    id: 'horizon',
     section: 'A',
-    label: 'Product / frontier',
-    description: 'Tech HQs + Convo Hotspots + AI Usage (OWID / WildChat)',
-    layerKeys: ['techHQs', 'convoHotspots', 'aiUsage'],
+    label: 'Human Horizon',
+    description: 'Ownership, reduced labour, and agency — wellbeing and civic progress',
+    layerKeys: ['happiness', 'positiveEvents', 'kindness', 'economic'],
   },
   {
-    id: 'open',
+    id: 'capital',
     section: 'B',
-    label: 'Open weights',
-    description: 'Startup Hubs + Accelerators',
-    layerKeys: ['startupHubs', 'accelerators'],
+    label: 'Capital → Capability',
+    description: 'Capital into capability — renewables, compute, materials, grid storage',
+    layerKeys: [
+      'renewableInstallations',
+      'datacenters',
+      'cloudRegions',
+      'minerals',
+      'storageFacilities',
+      'pipelines',
+    ],
   },
   {
-    id: 'infrastructure',
+    id: 'vectors',
     section: 'C',
-    label: 'Infrastructure',
-    description: 'Datacenters + Cloud Regions',
-    layerKeys: ['datacenters', 'cloudRegions'],
+    label: 'Develop / Optimise / Preserve',
+    description:
+      'Cycle vectors — new hubs, urban refactoring, ecological containment',
+    layerKeys: [
+      'commodityPorts',
+      'startupHubs',
+      'accelerators',
+      'techHQs',
+      'tradeRoutes',
+      'ais',
+      'speciesRecovery',
+      'natural',
+      'fires',
+    ],
   },
   {
-    id: 'policy',
+    id: 'capability',
     section: 'D',
-    label: 'Policy',
-    description: 'Countries with implemented AI legislation or active policy discussion',
-    layerKeys: ['aiPolicy'],
+    label: 'Useful Societal Capability',
+    description: 'Outcome — corridors, chokepoints, grid status, delivered services',
+    layerKeys: ['waterways', 'outages', 'techEvents'],
+  },
+  {
+    id: 'floor',
+    section: 'E',
+    label: 'Biophysical Floor',
+    description: 'Hard bound — ecological carrying capacity and resilience',
+    layerKeys: ['resilienceScore'],
   },
 ];
 
 /**
- * E — individual AI map layers (drawer + Overlays). Soft point density / fills.
- * Growth over scrubber: see @/config/ai-era-visibility + product/DC growth landmarks.
+ * City sustainability map layers (drawer + Overlays), sorted by Product object.
+ * Growth over scrubber: see @/config/ai-era-visibility for dated infra layers.
  */
 export const AI_FOOTPRINT_LAYER_KEYS: readonly LayerKey[] = [
-  'techHQs',
-  'convoHotspots',
-  'aiUsage',
-  'startupHubs',
-  'accelerators',
+  // A Human Horizon
+  'happiness',
+  'positiveEvents',
+  'kindness',
+  'economic',
+  // B Capital → Capability
+  'renewableInstallations',
   'datacenters',
   'cloudRegions',
-  'aiPolicy',
+  'minerals',
+  'storageFacilities',
+  'pipelines',
+  // C Develop / Optimise / Preserve
+  'commodityPorts',
+  'startupHubs',
+  'accelerators',
+  'techHQs',
+  'tradeRoutes',
+  'ais',
+  'speciesRecovery',
+  'natural',
+  'fires',
+  // D Useful Societal Capability
+  'waterways',
+  'outages',
   'techEvents',
+  // E Biophysical Floor
+  'resilienceScore',
 ];
 
 export function isAliasActive(alias: AiFootprintAlias, layers: LayerMap): boolean {

@@ -29,7 +29,7 @@ import { MapTimeScrubber } from './MapTimeScrubber';
 import { OverlayPanel } from './OverlayPanel';
 
 /**
- * Map chrome: AI Footprint drawer + filter dropdowns float on the map canvas;
+ * Map chrome: Spatial Cycle drawer + filter dropdowns float on the map canvas;
  * Feeds stays a collapsible/resizable right rail.
  */
 export function FeedSidebar({
@@ -149,7 +149,7 @@ export function FeedSidebar({
           <div className="wm-map-toolbar" role="toolbar" aria-label="Map tools">
             <DrawerTrigger
               render={
-                <Button size="sm" variant="secondary" label="AI Footprint" />
+                <Button size="sm" variant="secondary" label="Spatial Cycle" />
               }
             />
             <MapFilterBar
@@ -237,15 +237,16 @@ export function FeedSidebar({
         {mapCanvas ? (
           <DrawerContent className="wm-ai-drawer" container={mapCanvas}>
             <DrawerHeader className="wm-ai-drawer-header">
-              <DrawerTitle>AI Footprint</DrawerTitle>
+              <DrawerTitle>Spatial Cycle</DrawerTitle>
               <DrawerDescription>
                 <Text type="supporting" color="secondary" textWrap="pretty">
-                  Map AI industry geography from cited World Monitor layers.
+                  City sustainability overlays by Product object — cited layers
+                  only; missing series stay blank.
                 </Text>
               </DrawerDescription>
             </DrawerHeader>
             <ScrollableArea
-              label="AI Footprint layers"
+              label="Spatial Cycle layers"
               className="wm-ai-drawer-body"
               data-base-ui-swipe-ignore=""
             >

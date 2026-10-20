@@ -27,7 +27,7 @@ Forecast numbers are scenario math. They are not a cited empirical series. A bla
 ## Platform
 
 - **Forecast** explores relationships among ownership, capital-to-capability, Develop / Optimise / Preserve, and the biophysical floor.
-- **Live** turns signals into density and map overlays. Needs, capital, and location series stay empty until a cited source is ingested.
+- **Live** is the city spatial monitor. Map signals and overlays follow the five Product objects (Spatial Cycle): Human Horizon → Capital → Capability → Develop / Optimise / Preserve → Useful Societal Capability → Biophysical Floor. Needs, capital, and location series stay empty until a cited source is ingested.
 - The public map is the Live geographic monitor: [thenextproductioncycle.vercel.app](https://thenextproductioncycle.vercel.app).
 
 ## This repository

@@ -410,16 +410,23 @@ export const LAYER_EXPLANATIONS: Partial<Record<keyof MapLayers, LayerExplanatio
 
 const VARIANT_LAYER_ORDER: Record<MapVariant, Array<keyof MapLayers>> = {
   full: [
+    // City sustainability — Product objects A→E
+    'happiness', 'positiveEvents', 'kindness', 'economic',
+    'renewableInstallations', 'datacenters', 'cloudRegions', 'minerals',
+    'storageFacilities', 'pipelines',
+    'commodityPorts', 'startupHubs', 'accelerators', 'techHQs',
+    'tradeRoutes', 'ais', 'speciesRecovery', 'natural', 'fires',
+    'waterways', 'outages', 'techEvents',
+    'resilienceScore',
+    // Remaining geo catalog
     'iranAttacks', 'hotspots', 'conflicts',
     'bases', 'nuclear', 'irradiators', 'radiationWatch', 'spaceports',
-    'cables', 'pipelines', 'storageFacilities', 'fuelShortages', 'datacenters', 'military',
-    'ais', 'tradeRoutes', 'flights', 'protests',
+    'cables', 'fuelShortages', 'military',
+    'flights', 'protests',
     'ucdpEvents', 'displacement', 'climate', 'weather', 'canadaRoads', 'canadaAlerts',
-    'outages', 'cyberThreats', 'natural', 'fires',
-    'waterways', 'economic', 'minerals', 'gpsJamming',
-    'startupHubs', 'techHQs', 'convoHotspots', 'aiUsage', 'aiPolicy', 'accelerators', 'cloudRegions',
-    'techEvents',
-    'satellites', 'ciiChoropleth', 'resilienceScore', 'sanctions', 'dayNight', 'webcams',
+    'cyberThreats', 'gpsJamming',
+    'convoHotspots', 'aiUsage', 'aiPolicy',
+    'satellites', 'ciiChoropleth', 'sanctions', 'dayNight', 'webcams',
     'diseaseOutbreaks',
   ],
   tech: [
